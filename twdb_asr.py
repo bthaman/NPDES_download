@@ -29,22 +29,15 @@ class MasterWB:
     def __init__(self):
         self.wb_model = xw.Book.caller()
         self.app = xw.App(visible=False)
-        # self.wb_model = \
-        #     self.app.books.open\
-        #         (r'C:\Users\BThaman\OneDrive - HDR, Inc\Documents\PycharmProjects\TWDB_ASR\_WTP_download_tool.xlsm')
         self.working_dir = None
         self.set_working_dir()
         self.sht_active = self.wb_model.sheets.active
         self.sht_outfall = self.wb_model.sheets('TCEQ_Outfalls')
         self.sht_settings = self.wb_model.sheets('Settings')
         self.sht_wam = self.wb_model.sheets('WAM')
-        # self.app = xw.App(visible=False)
         self.outfall_rng = self.sht_outfall.range('A1').expand()
         self.df_outfall = self.outfall_rng.options(convert=pd.DataFrame, index=False).value
         self.start_month = self.sht_settings.range('B1').value
-        # self.url = 'https://echo.epa.gov/trends/loading-tool/get-data/monitoring-data-download'  # url 11/21/2019
-        # self.browser = webdriver.Chrome()
-        # self.browser.set_page_load_timeout(360)
         self.url = None
         self.browser = None
         self.logger_debug = logger_handler.setup_logger(name='npdes_debug', log_file=join(os.getcwd(),'debug.log'))
@@ -90,33 +83,27 @@ class MasterWB:
 
     def export_xlsx(self, facility_id, start_date):
         try:
-            # time.sleep(3)
-            # getting a 500 error on the first browser.get -- refreshing the browser loads the page correctly
-            # browser.refresh()
-            # facility_id_input = self.browser.find_element('id', 'permit_factsheets_parameters_p_npdes_id')
             facility_id_input = self.browser.find_element(By.ID, 'permit_factsheets_parameters_p_npdes_id')
+            # facility_id_input = self.browser.find_element('id', 'permit_factsheets_parameters_p_npdes_id')  # alternative to By.ID
             facility_id_input.clear()
             facility_id_input.send_keys(facility_id)
             # the start date input field is hidden, and the webdriver can't set the value for a hidden field.
-            # the workaround is to execute a javascript command to change the value
+            # the workaround is to execute a javascript command to change the value:
             self.browser.execute_script("document.getElementById('permit_factsheets_parameters_p_start_date').value='" +
                                    start_date + "'")
             # there are two submit buttons with class name = 'echo-search-btn': 
-            # one to download an excel file, and another to download a csv
+            # 1st one to download an excel file, and 2nd one to download a CSV
             # by calling .find_elements (plural), both are returned
             submit_buttons = self.browser.find_elements(By.CLASS_NAME, 'echo-search-btn')
             time.sleep(3)
-            # click the 1st submit button (download excel file)
+            # click the 1st submit button subscripting the buttons (download excel file)
             submit_buttons[0].click()
+            # give browser time to download file
             time.sleep(5)
         except Exception as e:
             self.logger_exception.exception('download error')
         finally:
-            try:
-                # browser.quit()
-                pass
-            except:
-                pass
+            pass
 
     def iterate_months(self, id, dt_start):
         try:
@@ -124,7 +111,6 @@ class MasterWB:
             self.export_xlsx(id, dt_start)
             out_file_info = self.get_download_file(id, dtnow)
             out_file = out_file_info[0]
-            # out_file_size = out_file_info[1]
             if out_file:
                 return out_file
             else:
@@ -179,9 +165,9 @@ def download():
     wb.download()
 
 
-# def read_unappropriated_flow():
-#     wb = MasterWB()
-#     wb.create_unappropriated_flow_csv()
+def read_unappropriated_flow():
+    wb = MasterWB()
+    wb.create_unappropriated_flow_csv()
 
 
 if __name__ == '__main__':
