@@ -79,8 +79,9 @@ class MasterWB:
             msgbox.show_error('get_download_file error', e)
             return None, -1
 
-    def export_xlsx(self, facility_id, start_date):
+    def export_file(self, facility_id, start_date):
         try:
+            dtnow = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')            
             facility_id_input = self.browser.find_element(By.ID, 'permit_factsheets_parameters_p_npdes_id')
             # facility_id_input = self.browser.find_element('id', 'permit_factsheets_parameters_p_npdes_id')  # alternative to By.ID
             facility_id_input.clear()
@@ -98,23 +99,17 @@ class MasterWB:
             submit_buttons[0].click()
             # give browser time to download file
             time.sleep(5)
-        except Exception as e:
-            self.logger_exception.exception('download error')
-        finally:
-            pass
 
-    def iterate_months(self, id, dt_start):
-        try:
-            dtnow = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            self.export_xlsx(id, dt_start)
-            out_file_info = self.get_download_file(id, dtnow)
+            out_file_info = self.get_download_file(facility_id, dtnow)
             out_file = out_file_info[0]
             if out_file:
                 return out_file
             else:
                 return None
         except Exception as e:
-            msgbox.show_error('iterate months error', e)
+            self.logger_exception.exception('download error')
+        finally:
+            pass
 
     def download(self):
         try:
@@ -132,7 +127,7 @@ class MasterWB:
                 dcnt += 1
                 if dcnt % 25 == 0:
                     self.wb_model.save()
-                f_out = self.iterate_months(row['NPDES_ID'], self.start_month)
+                f_out = self.export_file(row['NPDES_ID'], self.start_month)
                 if f_out:
                     print('{} of {}: {:5.1f}% - {}'.format(dcnt, num_download, dcnt / num_download * 100, f_out))
                     self.outfall_rng(index + 2, 7).value = '=hyperlink("' + f_out + '", "' + \
