@@ -52,7 +52,6 @@ class MasterWB:
 
     def enable_autofilter(self):
         rng_to_filter = self.wb_model.sheets('Hierarchy').range('A1')
-        # rng_to_filter.select()  # don't need to select to apply filter
         rng_to_filter.api.AutoFilter(1)  # only applies filter; does not remove it
 
     def disable_autofilter(self):
@@ -70,7 +69,6 @@ class MasterWB:
                 for basename in files:
                     if re_pattern.match(basename):
                         file = os.path.join(root, basename)
-                        # msgbox.show_message('debug', file)
                         dtmod = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(os.path.getmtime(file)))
                         if dtmod > dtbase:
                             dtbase = dtmod
@@ -96,7 +94,7 @@ class MasterWB:
             # by calling .find_elements (plural), both are returned
             submit_buttons = self.browser.find_elements(By.CLASS_NAME, 'echo-search-btn')
             time.sleep(3)
-            # click the 1st submit button subscripting the buttons (download excel file)
+            # click the 1st submit button using subscript [0] (i.e., download excel file)
             submit_buttons[0].click()
             # give browser time to download file
             time.sleep(5)
@@ -141,7 +139,6 @@ class MasterWB:
                                                             os.path.basename(f_out) + '")'
                     self.outfall_rng(index + 2, 6).value = False
             print('\n\nDone')
-            # msgbox.show_message('Info', 'Done downloading ' + str(num_download) + ' files')
         except Exception as e:
             msgbox.show_error('download error', e)
         finally:
