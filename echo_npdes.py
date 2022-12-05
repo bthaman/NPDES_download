@@ -61,7 +61,8 @@ class MasterWB:
     @staticmethod
     def get_download_file(facility_id, dtbase):
         try:
-            pattern = r'^NPDESMonitoringData_' + facility_id + r'.*\.xlsx$'
+            # pattern = r'^NPDESMonitoringData_' + facility_id + r'.*\.xlsx$'
+            pattern = r'^NPDESMonitoringData_.*\.xlsx$'
             lastfile = None
             size = None
             re_pattern = re.compile(pattern, re.IGNORECASE)
@@ -101,7 +102,9 @@ class MasterWB:
             time.sleep(5)
 
             out_file_info = self.get_download_file(facility_id, dtnow)
+            self.logger_debug.info(out_file_info)
             out_file = out_file_info[0]
+            self.logger_debug.info(out_file)
             if out_file:
                 return out_file
             else:
